@@ -4,7 +4,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('file', type=argparse.FileType('r'))
 parser.add_argument('-medals', dest='medals', nargs=2)
 parser.add_argument('-output', '--output', type=argparse.FileType('w'))
-
+parser.add_argument('-overall', nargs='*')
 
 def medals(line, user_country, user_year, dict):
     sep_info = line.split('\t')
