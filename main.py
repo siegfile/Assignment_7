@@ -8,11 +8,12 @@ parser.add_argument('-overall', nargs='*')
 parser.add_argument('-total', nargs=1)
 
 def total(line, year, dict):
+    line = line[:-1]
     sep_info = line.split('\t')
     country = sep_info[6]
     medal = sep_info[14]
     if year == sep_info[9]:
-        if medal != 'NA\n':
+        if medal != 'NA':
             if country in dict:
                 if medal in dict[country]:
                     dict[country][medal] += 1
@@ -33,8 +34,6 @@ def medals(line, user_country, user_year, dict):
     if sep_info[14] == 'Gold\n' and sep_info[6] == user_country or sep_info[7] == user_country and sep_info[9] == user_year: dict['gold'] += 1
     if sep_info[14] == 'Silver\n' and sep_info[6] == user_country or sep_info[7] == user_country and sep_info[9] == user_year: dict['silver'] += 1
     if sep_info[14] == 'Bronze\n' and sep_info[6] == user_country or sep_info[7] == user_country and sep_info[9] == user_year: dict['bronze'] += 1
-
-
     return dict
 
 
@@ -58,7 +57,7 @@ with args.file as file:
     while next_line != '':
         if args.medals is not None:
             sport_dict = medals(next_line, args.medals[0], args.medals[1], sport_dict)
-        if args.overall is not None and next_line != '':
+        if args.overall is not None:
           overall_medals = overall(next_line, overall_medals)
         if args.total is not None:
             total_dict = total(next_line, args.total[0], total_dict)
@@ -75,7 +74,7 @@ with args.file as file:
         for country, medals in total_dict.items():
             print(f'{country}')
             for medal, amount in medals.items():
-                print(medal, amount)
+                print(f'\t {medal}, {amount}')
     if args.overall is not None:
         for i in overall_medals:
             top_medals = 0
