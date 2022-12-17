@@ -7,7 +7,7 @@ parser.add_argument('-output', '--output', type=argparse.FileType('w'))
 parser.add_argument('-overall', nargs='*')
 parser.add_argument('-total', nargs=1)
 
-def total(line, year, dict):
+def total(line, year, dict, sorted_dict):
     line = line[:-1]
     sep_info = line.split('\t')
     country = sep_info[6]
@@ -19,10 +19,12 @@ def total(line, year, dict):
                     dict[country][medal] += 1
                 else:
                     dict[country][medal] = 1
+                sorted_dict[country] += 1
             else:
                 dict[country] = {}
                 dict[country][medal] = 1
-    return dict
+                sorted_dict[country] = 1
+    return dict, sorted_dict
 
 
 def medals(line, user_country, user_year, dict):
@@ -52,7 +54,9 @@ with args.file as file:
     next_line = file.readline()
     sport_dict = {'index': 0, 'sportsman_info': '', 'gold': 0, 'silver': 0, 'bronze': 0}
     if args.overall is not None: overall_medals = dict.fromkeys(args.overall, '')
-    if args.total is not None: total_dict = dict()
+    if args.total is not None:
+        total_dict = dict()
+        sorted_total_dict = dict()
     next_line = file.readline()
     while next_line != '':
         if args.medals is not None:
@@ -60,7 +64,7 @@ with args.file as file:
         if args.overall is not None:
           overall_medals = overall(next_line, overall_medals)
         if args.total is not None:
-            total_dict = total(next_line, args.total[0], total_dict)
+            total_dict, sorted_total_dict = total(next_line, args.total[0], total_dict, sorted_total_dict)
         next_line = file.readline()
     if args.medals is not None: print(sport_dict['gold'], sport_dict['silver'], sport_dict['bronze'])
     if args.output is not None:
@@ -71,10 +75,8 @@ with args.file as file:
     if args.medals is not None and sport_dict['index'] == 0:
         print('Введена країна не існує або у введений рік не проводилась олімпіада')
     if args.total is not None:
-        for country, medals in total_dict.items():
-            print(f'{country}')
-            for medal, amount in medals.items():
-                print(f'\t {medal}, {amount}')
+        for country in sorted(sorted_total_dict.items(), key = lambda x:x[1]):
+            print(country[0], total_dict[country[0]])
     if args.overall is not None:
         for i in overall_medals:
             top_medals = 0
